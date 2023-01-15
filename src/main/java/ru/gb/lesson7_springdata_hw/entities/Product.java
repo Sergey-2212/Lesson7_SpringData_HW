@@ -25,6 +25,12 @@ public class Product {
     @Column(name = "price")
     private BigDecimal price;
 
+    public Product(Long id, String title, BigDecimal price) {
+        this.id = id;
+        this.title = title;
+        this.price = price;
+    }
+
     public Product() {
     }
 

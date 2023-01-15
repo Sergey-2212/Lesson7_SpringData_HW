@@ -1,27 +1,28 @@
 package ru.gb.lesson7_springdata_hw.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.gb.lesson7_springdata_hw.dto.ProductDTO;
+import ru.gb.lesson7_springdata_hw.converters.EntityConverter;
+import ru.gb.lesson7_springdata_hw.dto.ProductDto;
 import ru.gb.lesson7_springdata_hw.entities.Product;
 import ru.gb.lesson7_springdata_hw.exceptions.NotFoundException;
 import ru.gb.lesson7_springdata_hw.services.ProductService;
-
-import java.math.BigDecimal;
-import java.rmi.StubNotFoundException;
+import ru.gb.lesson7_springdata_hw.validators.ProductValidator;
 
 @RestController
 @RequestMapping("/api/v1/products")
+@RequiredArgsConstructor //объявив переменные final можно использовать эту аннотацию чтобы не писать конструктор.
 public class ProductController {
-    private ProductService productService;
+    private final ProductService productService;
+    private final ProductValidator validator;
+    private final EntityConverter converter;
 
-    public ProductController(ProductService productService) {
-         this.productService = productService;
-    }
 
     @GetMapping("/{id}")
-    public ProductDTO getProductById (@PathVariable Long id) {
-        return productService.getProductById(id).map(s -> new ProductDTO(s)).orElseThrow(() -> new NotFoundException("Unable to find id: " + id));
+    public ProductDto getProductById (@PathVariable Long id) {
+        return productService.getProductById(id).map(s -> new ProductDto(s)).orElseThrow(() -> new NotFoundException("Unable to find id: " + id));
     }
 
 //    @GetMapping("/products")
@@ -30,7 +31,7 @@ public class ProductController {
 //    }
 
     @GetMapping
-    public Page<ProductDTO> getAllProductsBetween(@RequestParam(defaultValue = "0") Integer min,
+    public Page<ProductDto> getAllProductsBetween(@RequestParam(defaultValue = "0") Integer min,
                                                   @RequestParam(required = false) Integer max,
                                                   @RequestParam(required = false) Integer pageNumber,
                                                   @RequestParam(required = false) Integer pageSize,
@@ -42,11 +43,11 @@ public class ProductController {
 
         if(pageNumber == null || pageNumber < 1) { pageNumber = 1;}
 
-        if(pageSize == null) {pageSize = 10;}
+        if(pageSize == null) {pageSize = 50;}
 
         return productService.findAll(
                 min, max, pageNumber - 1,pageSize, titleLike,sortProp)
-                .map( s -> new ProductDTO(s));
+                .map( s -> new ProductDto(s));
     }
 
 //    @GetMapping("/products/between")
@@ -63,9 +64,18 @@ public class ProductController {
 //    }
 
     @PostMapping("/")
-    public Product addProductJSON (@RequestBody Product product) {
-        product.setId(null);
-        return productService.addProduct(product);
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public ProductDto addProductJSON (@RequestBody ProductDto productDto) {
+        validator.validateProductDto(productDto);
+        Product product = converter.dtoToEntityConverter(productDto);
+        return converter.entityToDto(productService.addProduct(product));
+    }
+    @PutMapping("/")
+    @ResponseStatus(code = HttpStatus.CREATED) //Эта аннотация возращает ResponseEntity с кодом 201
+    public ProductDto updateProduct (@RequestBody ProductDto productDto) {
+        validator.validateProductDto(productDto);
+        Product product = converter.dtoToEntityConverter(productDto);
+           return  converter.entityToDto(productService.updateProduct(product));
     }
 
     @PutMapping("/change_price/")

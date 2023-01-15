@@ -54,7 +54,7 @@ angular.module('app', []).controller('indexController', function ($scope, $http)
     $scope.deleteProduct = function (productId) {
        /* alert(studentId); /* выведем в алерте переданный studentId */
         $http({
-            url: contextPath + '/products',
+            url: contextPath + '/products/',
             method: 'DELETE',
             params: {
                 id: productId,
@@ -81,16 +81,19 @@ angular.module('app', []).controller('indexController', function ($scope, $http)
     }
 
     $scope.createProductJSON = function () {
+        $scope.newProductJSON.id = '1';
         console.log($scope.newProductJSON);
-        $http({
-            url: contextPath + '/products',
-            method: 'POST',
-            params: {
-                id: null,
-                title: $scope.newProductJSON.title,
-                price: $scope.newProductJSON.price,
-            }
-            }).then(function(response) {
+
+        $http.post(contextPath + '/products/', $scope.newProductJSON)
+        // $http({
+        //     url: contextPath + '/products/',
+        //     method: 'POST',
+        //     params: {
+        //         id: $scope.newProductJSON.id,
+        //         title: $scope.newProductJSON.title,
+        //         price: $scope.newProductJSON.price,
+        //     }
+            .then(function(response) {
             alert("Продукт - " + response.data.title + " добавлен.")
             $scope.loadProducts();
         })

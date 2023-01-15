@@ -6,9 +6,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import ru.gb.lesson7_springdata_hw.converters.EntityConverter;
+import ru.gb.lesson7_springdata_hw.dto.ProductDto;
 import ru.gb.lesson7_springdata_hw.entities.Product;
 import ru.gb.lesson7_springdata_hw.repository.ProductRepository;
 import ru.gb.lesson7_springdata_hw.repository.specifications.ProductSpecifications;
+import ru.gb.lesson7_springdata_hw.validators.ProductValidator;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -18,7 +21,9 @@ public class ProductService {
 
     private ProductRepository productRepository;
 
-    public ProductService(ProductRepository productRepository) {
+
+    public ProductService(ProductRepository productRepository)
+    {
         this.productRepository = productRepository;
     }
 
@@ -58,6 +63,11 @@ public class ProductService {
     }
 
     public Product addProduct(Product product) {
+        product.setId(null);
+        return productRepository.save(product);
+    }
+
+    public Product updateProduct(Product product) {
         return productRepository.save(product);
     }
 

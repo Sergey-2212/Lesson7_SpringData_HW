@@ -18,6 +18,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @Query("SELECT p from Product p WHERE p.price < ?1 order by p.id")
     List<Product> getAllProductsLessPrice(BigDecimal max);
 
-    List<Product> findAllByPriceBetween(BigDecimal min, BigDecimal max);
+    //List<Product> findAllByPriceBetween(BigDecimal min, BigDecimal max);
 
 }

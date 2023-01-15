@@ -1,4 +1,4 @@
-package ru.gb.lesson7_springdata_hw.data;
+package ru.gb.lesson7_springdata_hw.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
